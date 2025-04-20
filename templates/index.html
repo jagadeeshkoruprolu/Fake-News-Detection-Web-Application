@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fake News Detector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Link CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>📰 Fake News Detector</h1>
+
+<div class="container">
+  <form id="newsForm">
+    <textarea id="newsInput" placeholder="Paste your news article here..." required></textarea>
+    <button type="submit">Check News</button>
+
+    <div class="loading" id="loading" style="display:none;">
+      <div class="spinner"></div>
+      <div>Checking...</div>
+    </div>
+
+    <div id="result"></div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('newsForm');
+  const loading = document.getElementById('loading');
+  const resultDiv = document.getElementById('result');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newsText = document.getElementById('newsInput').value.trim();
+
+    if (!newsText) return;
+
+    loading.style.display = 'block';
+    resultDiv.innerHTML = '';
+
+    const response = await fetch('/check_news', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ news: newsText })
+    });
+
+    const data = await response.json();
+    loading.style.display = 'none';
+
+    if (data.result === "True") {
+      resultDiv.innerHTML = "<span class='true'>✅ This news is TRUE.</span>";
+    } else if (data.result === "False") {
+      resultDiv.innerHTML = "<span class='false'>❌ This news is FAKE.</span>";
+    } else {
+      resultDiv.innerHTML = "<span class='warning'>⚠️ Could not determine.</span>";
+    }
+  });
+</script>
+
+</body>
+</html>
